@@ -24,6 +24,14 @@ urlpatterns = [
    path('delete-appointment/<int:pk>/', views.delete_appointment, name='delete_appointment'),
 
    path('workflow/', views.workflow, name='workflow'),
+   path('workflow/add/', views.add_workflow, name='add_workflow'),
+   path('workflow/edit/<int:workflow_id>/', views.edit_workflow, name='edit_workflow'),
+   path('workflow/delete/<int:workflow_id>/', views.delete_workflow, name='delete_workflow'),
+   path('workflow/get/<int:workflow_id>/', views.get_workflow, name='get_workflow'),
+   path('workflow/monthly-report/', views.monthly_report, name='monthly_report'),
+   path('workflow/monthly-report/<int:year>/<int:month>/', views.monthly_report, name='monthly_report_date'),
+   path('staff/<int:staff_id>/monthly-report/', views.staff_monthly_report, name='staff_monthly_report'),
+   path('staff/<int:staff_id>/monthly-report/<int:year>/<int:month>/', views.staff_monthly_report, name='staff_monthly_report_date'),
 
    path('staff/', views.staff, name='staff'),
    path('add-staff/', views.add_staff, name='add_staff'),
@@ -31,4 +39,5 @@ urlpatterns = [
    path('delete-staff/<int:pk>/', views.delete_staff, name='delete_staff'),
    path('mark-attendance/', views.mark_attendance, name='mark_attendance'),
    path('edit-attendance/', views.edit_attendance, name='edit_attendance'),
+   path('get-monthly-expenses/', views.get_monthly_expenses, name='get_monthly_expenses'),
 ]

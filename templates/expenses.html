@@ -3,31 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense List - Avante Salon</title>
-    <!-- Bootstrap CSS -->
+    <title>Expenses - Avante Salon</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Montserrat', sans-serif;
         }
 
         /* Navbar */
         .navbar {
-            background-color: #343a40;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: #212529 !important;
         }
 
-        .navbar-brand {
-            font-weight: bold;
-            color: white;
-            font-size: 1.5rem;
+        .navbar-brand, .navbar-nav .nav-link {
+            color: #fff !important;
         }
 
-        .navbar a {
-            color: white;
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 250px;
+            background-color: white;
+            padding-top: 20px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            margin-top: 60px;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                margin-top: 60px;
+            }
+            .main-content {
+                margin-left: 0;
+                margin-top: 0;
+            }
+        }
+
+        .nav-link {
+            color: #333;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+
+        .nav-link.active {
+            color: #0d6efd;
+            background-color: #e9ecef;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
         }
 
         /* Breadcrumb */
@@ -140,48 +191,89 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-dark navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="#"><i class="fas fa-cut me-2"></i>AVANTE SALON</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
     </nav>
 
-    <!-- Breadcrumb -->
-    <div class="container mt-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'core:index' %}"><i class="fas fa-home me-1"></i>Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Expense List</li>
-            </ol>
-        </nav>
+    <!-- Sidebar -->
+    <div class="sidebar collapse d-md-block" id="sidebarMenu">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:index' %}">
+                    <i class="fa-solid fa-house"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:staff' %}">
+                    <i class="fa-solid fa-users"></i>Staff
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:appointments' %}">
+                    <i class="fa-solid fa-calendar"></i>Appointments
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:workflow' %}">
+                    <i class="fa-solid fa-clipboard-list"></i>Workflow
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'core:expenses' %}">
+                    <i class="fa-solid fa-money-bill"></i>Expenses
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:income_statement' %}">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>Income Statement
+                </a>
+            </li>
+        </ul>
     </div>
 
-    {% include 'includes/messages.html' %}
-
     <!-- Main Content -->
-    <div class="container">
+    <div class="main-content">
+        <!-- Breadcrumb -->
+        <div class="container mt-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'core:index' %}"><i class="fas fa-home me-1"></i>Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Expense List</li>
+                </ol>
+            </nav>
+        </div>
+
+        {% include 'includes/messages.html' %}
+
         <h1><i class="fas fa-file-invoice-dollar me-2"></i>Expense List</h1>
         <div class="table-container">
             <div class="table-responsive">
                 <table class="table expense-table table-striped table-bordered">
                     <thead class="table-dark">
                         <tr>
-                            <th scope="col" style="width: 20%;">Date</th>
-                            <th scope="col" style="width: 40%;">Description</th>
-                            <th scope="col" style="width: 20%;">Amount</th>
-                            <th scope="col" style="width: 20%;">Actions</th>
+                            <th scope="col" style="width: 15%;">Date</th>
+                            <th scope="col" style="width: 20%;">Category</th>
+                            <th scope="col" style="width: 35%;">Description</th>
+                            <th scope="col" style="width: 15%;">Amount</th>
+                            <th scope="col" style="width: 15%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for expense in expenses %}
                         <tr>
-                            <td class="">{{ expense.created_at }}</td>
+                            <td class="">{{ expense.date|date:"M d, Y" }}</td>
+                            <td class="text-start">{{ expense.get_category_display }}</td>
                             <td class="text-start">{{ expense.description }}</td>
                             <td class="text-start">Rs. {{ expense.amount }}</td>
                             <td>
                                 <div class="btn-group">
                                     <button class="btn btn-sm btn-primary" 
-                                            onclick="editExpense('{{ expense.pk }}', '{{ expense.description }}', '{{ expense.amount }}', '{{ expense.created_at|date:'Y-m-d' }}')"
+                                            onclick="editExpense('{{ expense.pk }}', '{{ expense.description }}', '{{ expense.category }}', '{{ expense.amount }}', '{{ expense.date|date:'Y-m-d' }}')"
                                             title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -195,7 +287,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center">No expenses found.</td>
+                            <td colspan="5" class="text-center">No expenses found.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -217,24 +309,32 @@
                     <h5 class="modal-title" id="addExpenseModalLabel"><i class="fas fa-plus-circle me-2"></i>Add Expense</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="POST" action="{% url 'core:add_expense' %}" id="addExpenseForm">
+                <form id="addExpenseForm" method="post" action="{% url 'core:add_expense' %}">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="expenseDate" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="expenseDate" name="date" required>
+                            <label for="category" class="form-label">Category</label>
+                            <select name="category" id="category" class="form-select" required>
+                                <option value="">Select a category</option>
+                                {% for value, label in categories %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label for="expenseDescription" class="form-label">Description</label>
-                            <input type="text" class="form-control" id="expenseDescription" name="description" required>
+                            <label for="description" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="description" name="description" required>
                         </div>
-                       
                         <div class="mb-3">
-                            <label for="expenseAmount" class="form-label">Amount</label>
+                            <label for="amount" class="form-label">Amount</label>
                             <div class="input-group">
-                                <span class="input-group-text"></span>
-                                <input type="number" class="form-control" id="expenseAmount" name="amount" step="0.01" min="0" required>
+                                <span class="input-group-text">Rs.</span>
+                                <input type="number" class="form-control" id="amount" name="amount" required>
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -254,20 +354,32 @@
                     <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Expense</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="editExpenseForm" method="POST">
+                <form id="editExpenseForm" method="post">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <input type="text" class="form-control" name="description" id="editDescription" required>
+                            <label for="editCategory" class="form-label">Category</label>
+                            <select name="category" id="editCategory" class="form-select" required>
+                                <option value="">Select a category</option>
+                                {% for value, label in categories %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Amount</label>
-                            <input type="number" class="form-control" name="amount" id="editAmount" required>
+                            <label for="editDescription" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="editDescription" name="description" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Date</label>
-                            <input type="date" class="form-control" name="date" id="editDate" required>
+                            <label for="editAmount" class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rs.</span>
+                                <input type="number" class="form-control" id="editAmount" name="amount" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDate" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="editDate" name="date" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -309,35 +421,22 @@
         // Set default date to today
         document.addEventListener('DOMContentLoaded', function() {
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('expenseDate').value = today;
+            document.getElementById('date').value = today;
         });
 
-        function editExpense(pk, description, amount, date) {
-            const modal = new bootstrap.Modal(document.getElementById('editExpenseModal'));
-            const form = document.getElementById('editExpenseForm');
-            
-            // Set form action
-            form.action = `/edit-expense/${pk}/`;
-            
-            // Set form values
+        function editExpense(pk, description, category, amount, date) {
+            document.getElementById('editExpenseForm').action = `/edit-expense/${pk}/`;
             document.getElementById('editDescription').value = description;
+            document.getElementById('editCategory').value = category;
             document.getElementById('editAmount').value = amount;
             document.getElementById('editDate').value = date;
-            
-            modal.show();
+            new bootstrap.Modal(document.getElementById('editExpenseModal')).show();
         }
 
         function deleteExpense(pk, description) {
-            const modal = new bootstrap.Modal(document.getElementById('deleteExpenseModal'));
-            const form = document.getElementById('deleteExpenseForm');
-            
-            // Set form action
-            form.action = `/delete-expense/${pk}/`;
-            
-            // Set confirmation message
+            document.getElementById('deleteExpenseForm').action = `/delete-expense/${pk}/`;
             document.getElementById('deleteExpenseName').textContent = description;
-            
-            modal.show();
+            new bootstrap.Modal(document.getElementById('deleteExpenseModal')).show();
         }
     </script>
 </body>

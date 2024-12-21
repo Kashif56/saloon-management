@@ -4,31 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Income Statement - Avante Salon</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
-            font-family: 'Montserrat', sans-serif;
         }
 
         /* Navbar */
         .navbar {
-            background-color: #343a40;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: #212529 !important;
         }
 
-        .navbar-brand {
-            font-weight: bold;
-            color: white;
-            font-size: 1.5rem;
+        .navbar-brand, .navbar-nav .nav-link {
+            color: #fff !important;
         }
 
-        .navbar a {
-            color: white;
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 250px;
+            background-color: white;
+            padding-top: 20px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            margin-top: 60px;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                margin-top: 60px;
+            }
+            .main-content {
+                margin-left: 0;
+                margin-top: 0;
+            }
+        }
+
+        .nav-link {
+            color: #333;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+
+        .nav-link.active {
+            color: #0d6efd;
+            background-color: #e9ecef;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
         }
 
         /* Breadcrumb */
@@ -145,331 +193,407 @@
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-dark navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="#"><i class="fas fa-cut me-2"></i>AVANTE SALON</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
     </nav>
 
-    <!-- Breadcrumb -->
-    <div class="container mt-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'core:index' %}"><i class="fas fa-home me-1"></i>Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Income Statement</li>
-            </ol>
-        </nav>
+    <!-- Sidebar -->
+    <div class="sidebar collapse d-md-block" id="sidebarMenu">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:index' %}">
+                    <i class="fa-solid fa-house"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:staff' %}">
+                    <i class="fa-solid fa-users"></i>Staff
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:appointments' %}">
+                    <i class="fa-solid fa-calendar"></i>Appointments
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:workflow' %}">
+                    <i class="fa-solid fa-clipboard-list"></i>Workflow
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:expenses' %}">
+                    <i class="fa-solid fa-money-bill"></i>Expenses
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'core:income_statement' %}">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>Income Statement
+                </a>
+            </li>
+        </ul>
     </div>
 
-    {% include 'includes/messages.html' %}
     <!-- Main Content -->
-    <div class="container">
-        <h1><i class="fas fa-chart-line me-2"></i>Income Statement</h1>
-        <div class="table-container">
-            <div class="table-responsive">
-                <table class="table income-statement-table">
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th>Total Sales</th>
-                            <th>Total Expenses</th>
-                            <th>Net Total</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for statement in income_statements %}
-                        <tr style="cursor: pointer" onclick="window.location='{% url 'core:income_statement_detail' statement.pk %}'">
-                            <td class="text-start">{{ statement.period|date:"F Y" }}</td>
-                            <td class="amount text-start">Rs. {{ statement.total_sales }}</td>
-                            <td class="amount text-start">Rs. {{ statement.get_total_expenses }}</td>
-                            <td class="amount positive text-start">Rs. {{ statement.net_income }}</td>
-                            
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="text-center">No income statements found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="text-end mt-4">
-                <button class="btn btn-add-statement" data-bs-toggle="modal" data-bs-target="#addStatementModal">
-                    <i class="fas fa-plus me-2"></i>Add Statement
-                </button>
+    <div class="main-content">
+        <!-- Breadcrumb -->
+        <div class="container mt-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'core:index' %}"><i class="fas fa-home me-1"></i>Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Income Statement</li>
+                </ol>
+            </nav>
+        </div>
+
+        {% include 'includes/messages.html' %}
+        <!-- Main Content -->
+        <div class="container-fluid py-4">
+            <div class="row">
+                <!-- Income Statements List -->
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="card-title mb-0">Income Statements</h5>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStatementModal">
+                                    <i class="fas fa-plus me-2"></i>Add Statement
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Period</th>
+                                            <th class="text-end">Total Sales</th>
+                                            <th class="text-end">Gross Profit</th>
+                                            <th class="text-end">Total Expenses</th>
+                                            <th class="text-end">Net Income</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for statement in statements %}
+                                        <tr>
+                                            <td>{{ statement.period|date:"F Y" }}</td>
+                                            <td class="text-end">Rs. {{ statement.total_sales }}</td>
+                                            <td class="text-end">Rs. {{ statement.gross_profit }}</td>
+                                            <td class="text-end">Rs. {{ statement.get_total_expenses }}</td>
+                                            <td class="text-end">Rs. {{ statement.get_net_income }}</td>
+                                            <td class="text-end">
+                                                <a href="{% url 'core:income_statement_detail' statement.id %}" class="btn btn-sm btn-light">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4 text-muted">
+                                                <i class="fas fa-file-invoice-dollar me-2"></i>No income statements found
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal for Adding Income Statement -->
-    <div class="modal fade" id="addStatementModal" tabindex="-1" aria-labelledby="addStatementModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addStatementModalLabel"><i class="fas fa-file-invoice-dollar me-2"></i>Add Income Statement</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="POST" action="{% url 'core:add_statement' %}" id="addStatementForm">
-                    {% csrf_token %}
+        <!-- Add Income Statement Modal -->
+        <div class="modal fade" id="addStatementModal" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Income Statement</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
                     <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="period" class="form-label">Period</label>
-                                <input type="month" class="form-control" id="period" name="period" required>
+                        <form method="post" id="addStatementForm">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4">
+                                <label class="form-label">Period</label>
+                                <input type="month" name="period" class="form-control" required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="totalSales" class="form-label">Total Sales</label>
-                                <input type="number" class="form-control" id="totalSales" name="total_sales" required>
-                            </div>
-                        </div>
-                        
-                        <h6 class="mt-4 mb-3">Expenses</h6>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="productCost" class="form-label">Cost of Products</label>
-                                <input type="number" class="form-control" id="productCost" name="cost_of_product" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="operatingExpenses" class="form-label">Operating Expenses</label>
-                                <input type="number" class="form-control" id="operatingExpenses" name="operating_expenses" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="salaries" class="form-label">Salaries</label>
-                                <input type="number" class="form-control" id="salaries" name="salaries" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="commissions" class="form-label">Commissions</label>
-                                <input type="number" class="form-control" id="commissions" name="comissions" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="rent" class="form-label">Rent</label>
-                                <input type="number" class="form-control" id="rent" name="rent" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="tax" class="form-label">Tax</label>
-                                <input type="number" class="form-control" id="tax" name="tax" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="others" class="form-label">Other Expenses</label>
-                                <input type="number" class="form-control" id="others" name="others" required>
-                            </div>
-                        </div>
 
-                        <div class="row mt-4">
-                            <div class="col-md-6 mb-3">
-                                <label for="totalExpenses" class="form-label">
-                                    Total Expenses
-                                    <i class="fas fa-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Sum of all expenses (Cost of Products + Operating Expenses + Salaries + Commissions + Rent + Tax + Others)"></i>
-                                </label>
-                                <input type="number" class="form-control" id="totalExpenses" readonly>
+                            <div class="mb-3">
+                                <label class="form-label">Total Sales</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rs.</span>
+                                    <input type="number" name="total_sales" id="total_sales" class="form-control calc-input" required>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="grossProfit" class="form-label">
-                                    Gross Profit 
-                                    <i class="fas fa-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Gross Profit = Total Sales - Cost of Products"></i>
-                                </label>
-                                <input type="number" class="form-control" id="grossProfit" readonly>
+                            <div class="row">
+                                <!-- Left Column -->
+                                <div class="col-md-6">
+                                    <h6 class="mb-3 text-muted">Cost of Sales</h6>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Salon Material</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="saloon_material" id="saloon_material" class="form-control calc-input" value="{{ expense_totals.salon_material }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Supplies</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="supplies" id="supplies" class="form-control calc-input" value="{{ expense_totals.supplies }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Other Purchases</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="other_purchases" id="other_purchases" class="form-control calc-input" value="{{ expense_totals.other_purchases }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Marketing</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="marketing" id="marketing" class="form-control calc-input" value="{{ expense_totals.marketing }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Commissions</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="comissions" id="comissions" class="form-control calc-input" value="{{ expense_totals.commissions }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Salaries</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="salaries" id="salaries" class="form-control calc-input" value="{{ expense_totals.salaries }}" >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Right Column -->
+                                <div class="col-md-6">
+                                    <h6 class="mb-3 text-muted">Operating Expenses</h6>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Rent</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="rent" id="rent" class="form-control calc-input" value="{{ expense_totals.rent }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Electricity</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="electricity" id="electricity" class="form-control calc-input" value="{{ expense_totals.electricity }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Other Utilities</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="other_utilities" id="other_utilities" class="form-control calc-input" value="{{ expense_totals.other_utilities }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Telephone & Internet</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="tele_internet" id="tele_internet" class="form-control calc-input" value="{{ expense_totals.tele_internet }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Legal & Professional</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="legal" id="legal" class="form-control calc-input" value="{{ expense_totals.legal }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Cleaning</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="cleaning" id="cleaning" class="form-control calc-input" value="{{ expense_totals.cleaning }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Others</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" name="others" id="others" class="form-control calc-input" value="{{ expense_totals.others }}">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="netTotal" class="form-label">
-                                    Net Total
-                                    <i class="fas fa-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                       title="Net Total = Total Sales - All Expenses"></i>
-                                </label>
-                                <input type="number" class="form-control" id="netTotal" readonly>
+
+                            <!-- Totals Section -->
+                            <div class="row mt-4">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Gross Profit</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" id="gross_profit" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Total Expenses</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" id="total_expenses" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Net Income</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rs.</span>
+                                            <input type="number" id="net_income" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Add Statement</button>
+                        <button type="submit" form="addStatementForm" class="btn btn-primary">Save Statement</button>
                     </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Statement Modal -->
-    <div class="modal fade" id="editStatementModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Income Statement</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="editStatementForm" method="POST">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Period</label>
-                            <input type="month" class="form-control" name="period" id="editPeriod" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Total Sales</label>
-                            <input type="number" class="form-control" name="total_sales" id="editTotalSales" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Cost of Product</label>
-                            <input type="number" class="form-control" name="cost_of_product" id="editCostOfProduct" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Operating Expenses</label>
-                            <input type="number" class="form-control" name="operating_expenses" id="editOperatingExpenses" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Salaries</label>
-                            <input type="number" class="form-control" name="salaries" id="editSalaries" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Commissions</label>
-                            <input type="number" class="form-control" name="comissions" id="editCommissions" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Rent</label>
-                            <input type="number" class="form-control" name="rent" id="editRent" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Tax</label>
-                            <input type="number" class="form-control" name="tax" id="editTax" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Others</label>
-                            <input type="number" class="form-control" name="others" id="editOthers" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
             </div>
         </div>
-    </div>
 
-    <!-- Delete Statement Modal -->
-    <div class="modal fade" id="deleteStatementModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-trash me-2"></i>Delete Income Statement</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="deleteStatementForm" method="POST">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete the income statement for: <strong id="deleteStatementPeriod"></strong>?</p>
-                        <p class="text-danger"><small>This action cannot be undone.</small></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('addStatementForm');
+                const inputs = form.querySelectorAll('.calc-input');
+                const periodInput = document.querySelector('input[name="period"]');
 
-            const form = document.getElementById('addStatementForm');
-            const inputs = form.querySelectorAll('input[type="number"]:not([readonly])');
-            const grossProfitInput = document.getElementById('grossProfit');
-            const netTotalInput = document.getElementById('netTotal');
-            const totalExpensesInput = document.getElementById('totalExpenses');
+                // Function to update expense fields
+                function updateExpenseFields(expenses) {
+                    document.getElementById('saloon_material').value = expenses.salon_material || 0;
+                    document.getElementById('supplies').value = expenses.supplies || 0;
+                    document.getElementById('other_purchases').value = expenses.other_purchases || 0;
+                    document.getElementById('marketing').value = expenses.marketing || 0;
+                    document.getElementById('comissions').value = expenses.commissions || 0;
+                    document.getElementById('salaries').value = expenses.salaries || 0;
+                    document.getElementById('rent').value = expenses.rent || 0;
+                    document.getElementById('electricity').value = expenses.electricity || 0;
+                    document.getElementById('other_utilities').value = expenses.other_utilities || 0;
+                    document.getElementById('tele_internet').value = expenses.tele_internet || 0;
+                    document.getElementById('legal').value = expenses.legal || 0;
+                    document.getElementById('cleaning').value = expenses.cleaning || 0;
+                    document.getElementById('others').value = expenses.others || 0;
+                    
+                    // Trigger calculation update
+                    calculateTotals();
+                }
 
-            function calculateProfits() {
-                // Get values
-                const totalSales = Number(document.getElementById('totalSales').value) || 0;
-                const productCost = Number(document.getElementById('productCost').value) || 0;
-                const operatingExpenses = Number(document.getElementById('operatingExpenses').value) || 0;
-                const salaries = Number(document.getElementById('salaries').value) || 0;
-                const commissions = Number(document.getElementById('commissions').value) || 0;
-                const rent = Number(document.getElementById('rent').value) || 0;
-                const tax = Number(document.getElementById('tax').value) || 0;
-                const others = Number(document.getElementById('others').value) || 0;
+                // Function to fetch expenses for selected period
+                function fetchMonthlyExpenses(period) {
+                    fetch(`/get-monthly-expenses/?period=${period}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                updateExpenseFields(data.expenses);
+                            } else {
+                                console.error('Error fetching expenses:', data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }
 
-                // Calculate gross profit (total sales - cost of products)
-                const grossProfit = totalSales - productCost;
-                grossProfitInput.value = grossProfit;
+                // Add event listener for period change
+                periodInput.addEventListener('change', function() {
+                    if (this.value) {
+                        fetchMonthlyExpenses(this.value);
+                    }
+                });
 
-                // Calculate total expenses
-                const totalExpenses = productCost + operatingExpenses + salaries + 
-                                    commissions + rent + tax + others;
-                totalExpensesInput.value = totalExpenses;
+                function calculateTotals() {
+                    // Get all values
+                    const totalSales = Number(document.getElementById('total_sales').value) || 0;
+                    const saloonMaterial = Number(document.getElementById('saloon_material').value) || 0;
+                    const supplies = Number(document.getElementById('supplies').value) || 0;
+                    const otherPurchases = Number(document.getElementById('other_purchases').value) || 0;
+                    const marketing = Number(document.getElementById('marketing').value) || 0;
+                    const comissions = Number(document.getElementById('comissions').value) || 0;
+                    const salaries = Number(document.getElementById('salaries').value) || 0;
+                    const rent = Number(document.getElementById('rent').value) || 0;
+                    const electricity = Number(document.getElementById('electricity').value) || 0;
+                    const otherUtilities = Number(document.getElementById('other_utilities').value) || 0;
+                    const teleInternet = Number(document.getElementById('tele_internet').value) || 0;
+                    const legal = Number(document.getElementById('legal').value) || 0;
+                    const cleaning = Number(document.getElementById('cleaning').value) || 0;
+                    const others = Number(document.getElementById('others').value) || 0;
 
-                // Calculate net total (total sales - total expenses)
-                const netTotal = totalSales - totalExpenses;
-                netTotalInput.value = netTotal;
+                    // Calculate Cost of Sales
+                    const costOfSales = saloonMaterial + supplies + otherPurchases;
 
-                // Add color classes based on values
-                grossProfitInput.classList.remove('text-success', 'text-danger');
-                netTotalInput.classList.remove('text-success', 'text-danger');
-                totalExpensesInput.classList.remove('text-success', 'text-danger');
+                    // Calculate Gross Profit
+                    const grossProfit = totalSales - costOfSales;
+                    document.getElementById('gross_profit').value = grossProfit;
+
+                    // Calculate Total Expenses
+                    const totalExpenses = costOfSales + marketing + comissions + salaries + rent + 
+                                        electricity + otherUtilities + teleInternet + legal + 
+                                        cleaning + others;
+                    document.getElementById('total_expenses').value = totalExpenses;
+
+                    // Calculate Net Income
+                    const netIncome = totalSales - totalExpenses;
+                    document.getElementById('net_income').value = netIncome;
+
+                    // Add color classes based on values
+                    document.getElementById('gross_profit').classList.remove('text-success', 'text-danger');
+                    document.getElementById('net_income').classList.remove('text-success', 'text-danger');
+                    
+                    document.getElementById('gross_profit').classList.add(grossProfit >= 0 ? 'text-success' : 'text-danger');
+                    document.getElementById('net_income').classList.add(netIncome >= 0 ? 'text-success' : 'text-danger');
+                }
+
+                // Add event listeners to all number inputs
+                inputs.forEach(input => {
+                    input.addEventListener('input', calculateTotals);
+                });
+
+                // Set default date to current month
+                const today = new Date();
+                const currentMonth = today.toISOString().slice(0, 7); // YYYY-MM format
+                periodInput.value = currentMonth;
                 
-                grossProfitInput.classList.add(grossProfit >= 0 ? 'text-success' : 'text-danger');
-                netTotalInput.classList.add(netTotal >= 0 ? 'text-success' : 'text-danger');
-            }
-
-            // Add event listeners to all number inputs
-            inputs.forEach(input => {
-                input.addEventListener('input', calculateProfits);
+                // Fetch expenses for current month
+                fetchMonthlyExpenses(currentMonth);
             });
-        });
-
-        function editStatement(pk, period, totalSales, costOfProduct, operatingExpenses, salaries, commissions, rent, tax, others) {
-            const modal = new bootstrap.Modal(document.getElementById('editStatementModal'));
-            const form = document.getElementById('editStatementForm');
-            
-            // Set form action
-            form.action = `/edit-statement/${pk}/`;
-            
-            // Set form values
-            document.getElementById('editPeriod').value = period;
-            document.getElementById('editTotalSales').value = totalSales;
-            document.getElementById('editCostOfProduct').value = costOfProduct;
-            document.getElementById('editOperatingExpenses').value = operatingExpenses;
-            document.getElementById('editSalaries').value = salaries;
-            document.getElementById('editCommissions').value = commissions;
-            document.getElementById('editRent').value = rent;
-            document.getElementById('editTax').value = tax;
-            document.getElementById('editOthers').value = others;
-            
-            modal.show();
-        }
-
-        function deleteStatement(pk, period) {
-            const modal = new bootstrap.Modal(document.getElementById('deleteStatementModal'));
-            const form = document.getElementById('deleteStatementForm');
-            
-            // Set form action
-            form.action = `/delete-statement/${pk}/`;
-            
-            // Set confirmation message
-            document.getElementById('deleteStatementPeriod').textContent = period;
-            
-            modal.show();
-        }
-    </script>
-</body>
+        </script>
+    </body>
 </html>

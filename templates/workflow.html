@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow - Avante Salon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: #212529 !important;
+        }
+
+        .navbar-brand, .navbar-nav .nav-link {
+            color: #fff !important;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 250px;
+            background-color: white;
+            padding-top: 20px;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        .main-content {
+            margin-left: 250px;
+            margin-top: 60px;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                margin-top: 60px;
+            }
+            .main-content {
+                margin-left: 0;
+                margin-top: 0;
+            }
+        }
+
+        .nav-link {
+            color: #333;
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: #f8f9fa;
+        }
+
+        .nav-link.active {
+            color: #0d6efd;
+            background-color: #e9ecef;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .page-header {
+            background-color: white;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .progress {
+            background-color: #e9ecef;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: #0d6efd;
+        }
+
+        .stats-box {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .stats-box:hover {
+            background-color: #e9ecef;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+
+        .badge.bg-light {
+            background-color: #f8f9fa !important;
+            color: #212529 !important;
+            border: 1px solid #dee2e6;
+        }
+
+        .badge.bg-success {
+            background-color: #198754 !important;
+        }
+
+        .badge.bg-danger {
+            background-color: #dc3545 !important;
+        }
+
+        .total-sales {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+        }
+
+        h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            color: #212529;
+        }
+
+        .container-fluid {
+            padding: 1.5rem;
+        }
+
+        .table {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #212529;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .table td {
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .date-nav {
+            display: inline-flex;
+            align-items: center;
+            background: white;
+            border-radius: 0.5rem;
+            padding: 0.25rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .date-nav .btn {
+            padding: 0.5rem 1rem;
+            color: #212529;
+            background: transparent;
+            border: none;
+            font-weight: 500;
+        }
+
+        .date-nav .btn:hover {
+            background: #f8f9fa;
+        }
+
+        .date-nav .date-display {
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            color: #212529;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .add-workflow-btn {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .add-workflow-btn:hover {
+            background-color: #0b5ed7;
+            color: white;
+        }
+
+        .modal-content {
+            border-radius: 0.5rem;
+            border: none;
+        }
+
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+
+        .modal-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-cut me-2"></i>AVANTE SALON</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar collapse d-md-block" id="sidebarMenu">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:index' %}">
+                    <i class="fa-solid fa-house"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:staff' %}">
+                    <i class="fa-solid fa-users"></i>Staff
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:appointments' %}">
+                    <i class="fa-solid fa-calendar"></i>Appointments
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{% url 'core:workflow' %}">
+                    <i class="fa-solid fa-clipboard-list"></i>Workflow
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:expenses' %}">
+                    <i class="fa-solid fa-money-bill"></i>Expenses
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'core:income_statement' %}">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>Income Statement
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        {% include 'includes/messages.html' %}
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:index' %}">Home</a></li>
+                <li class="breadcrumb-item active">Workflow</li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="date-nav">
+                    <a href="?date={{ prev_date|date:'Y-m-d' }}" class="btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <span class="date-display">{{ selected_date|date:"l, F j, Y" }}</span>
+                    {% if show_next %}
+                    <a href="?date={{ next_date|date:'Y-m-d' }}" class="btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% else %}
+                    <button class="btn" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'core:monthly_report' %}" class="btn btn-light">
+                        <i class="fas fa-chart-line me-2"></i>Monthly Report
+                    </a>
+                    <button type="button" class="add-workflow-btn" data-bs-toggle="modal" data-bs-target="#addWorkflowModal">
+                        <i class="fas fa-plus me-2"></i>Add Workflow
+                    </button>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">Today's Workflow</h2>
+                    <p class="text-muted mb-0">{{ staff_data|length }} Staff Members</p>
+                </div>
+                <div class="text-end">
+                    <p class="text-muted mb-1">Total Sales</p>
+                    <h3 class="total-sales mb-0">Rs. {{ total_today_sales }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Staff Cards -->
+        <div class="row g-4">
+            {% for data in staff_data %}
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <!-- Staff Info -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">{{ data.staff.name }}</h5>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-light">
+                                        <i class="fas fa-user-tag me-1"></i>{{ data.staff.role }}
+                                    </span>
+                                    {% if data.is_present.status == 'present' %}
+                                    <span class="badge bg-success">Present</span>
+                                    {% elif data.is_present.status == 'absent' %}
+                                    <span class="badge bg-danger">Absent</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <a href="{% url 'core:staff_monthly_report' data.staff.id %}" class="btn btn-light btn-sm">
+                                    <i class="fas fa-chart-line me-1"></i>Monthly Report
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Sales Progress -->
+                        {% if total_today_sales > 0 %}
+                        <div class="mb-3">
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ data.percentage }}%"
+                                     aria-valuenow="{{ data.percentage }}"
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-1">{{ data.percentage }}% of total sales</small>
+                        </div>
+                        {% endif %}
+
+                        <!-- Stats -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <div class="stats-box p-3">
+                                    <small class="text-muted d-block mb-1">Today's Sales</small>
+                                    <h4 class="mb-0">${{ data.today_sales }}</h4>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stats-box p-3">
+                                    <small class="text-muted d-block mb-1">Appointments</small>
+                                    <h4 class="mb-0">{{ data.appointments_count }}</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Workflow Entries -->
+                        <div class="mt-2">
+                            <h6 class="d-flex justify-content-between align-items-center mb-3">
+                                <span>Services</span>
+                                <small class="text-muted">{{ data.workflows|length }} entries</small>
+                            </h6>
+                            {% if data.workflows %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Service</th>
+                                            <th class="text-end">Amount</th>
+                                            <th class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for workflow in data.workflows %}
+                                        <tr data-workflow-id="{{ workflow.id }}">
+                                            <td>{{ workflow.created_at|date:"h:i A" }}</td>
+                                            <td class="workflow-service">{{ workflow.service }}</td>
+                                            <td class="text-end workflow-amount">Rs. {{ workflow.amount }}</td>
+                                            <td class="workflow-artist d-none">{{ workflow.artist.name }}</td>
+                                            <td class="text-end">
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-sm btn-light" onclick="editWorkflow({{ workflow.id }})">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-light text-danger" onclick="confirmDelete({{ workflow.id }})">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-3 text-muted">
+                                <i class="fas fa-clipboard me-2"></i>No services recorded
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No active staff members found.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Add Workflow Modal -->
+    <div class="modal fade" id="addWorkflowModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Workflow</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="post" action="{% url 'core:add_workflow' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Staff Member</label>
+                            <select name="artist" class="form-select" required>
+                                <option value="">Select Staff Member</option>
+                                {% for staff in staff_list %}
+                                <option value="{{ staff.id }}">{{ staff.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Service</label>
+                            <input type="text" name="service" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rs</span>
+                                <input type="number" name="amount" class="form-control" required min="0" step="0.01">
+                            </div>
+                        </div>
+                        <input type="hidden" name="period" value="{{ selected_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Workflow</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Workflow Modal -->
+    <div class="modal fade" id="editWorkflowModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Workflow</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editWorkflowForm">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Staff Member</label>
+                            <select name="artist" class="form-select" required>
+                                {% for staff in staff_list %}
+                                <option value="{{ staff.id }}">{{ staff.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Service</label>
+                            <input type="text" name="service" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Amount</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rs.</span>
+                                <input type="number" name="amount" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" name="period" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this workflow?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Edit workflow functionality
+        let currentWorkflowId = null;
+        const editModal = new bootstrap.Modal(document.getElementById('editWorkflowModal'));
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+
+        function editWorkflow(workflowId) {
+            currentWorkflowId = workflowId;
+            
+            // Fetch workflow data
+            fetch(`/workflow/get/${workflowId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Fill form fields
+                    const form = document.getElementById('editWorkflowForm');
+                    form.querySelector('select[name="artist"]').value = data.artist_id;
+                    form.querySelector('input[name="service"]').value = data.service;
+                    form.querySelector('input[name="amount"]').value = data.amount;
+                    form.querySelector('input[name="period"]').value = data.period;
+                    
+                    // Show modal
+                    editModal.show();
+                });
+        }
+
+        // Handle edit form submission
+        document.getElementById('editWorkflowForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch(`/workflow/edit/${currentWorkflowId}/`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update the UI
+                    const workflowRow = document.querySelector(`[data-workflow-id="${currentWorkflowId}"]`);
+                    if (workflowRow) {
+                        workflowRow.querySelector('.workflow-service').textContent = data.data.service;
+                        workflowRow.querySelector('.workflow-amount').textContent = `Rs. ${data.data.amount}`;
+                        workflowRow.querySelector('.workflow-artist').textContent = data.data.artist_name;
+                    }
+                    
+                    
+                    editModal.hide();
+                    
+                    // Reload page to update all instances
+                    location.reload();
+                } 
+            });
+        });
+
+        // Delete workflow functionality
+        function confirmDelete(workflowId) {
+            currentWorkflowId = workflowId;
+            deleteModal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            fetch(`/workflow/delete/${currentWorkflowId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Remove the workflow from UI
+                        const workflowRow = document.querySelector(`[data-workflow-id="${currentWorkflowId}"]`);
+                        if (workflowRow) {
+                            workflowRow.remove();
+                        }
+                        
+                        deleteModal.hide();
+                        
+                        // Reload page to update all instances
+                        location.reload();
+                    } 
+                });
+        });
+    </script>
+</body>
+</html>
