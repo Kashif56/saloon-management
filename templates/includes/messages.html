@@ -1,0 +1,71 @@
+{% if messages %}
+<div class="messages-container" style="position: fixed; top: 20px; right: 20px; z-index: 1050; min-width: 300px;">
+    {% for message in messages %}
+    <div class="toast show mb-3" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header {% if message.tags %}bg-{{ message.tags }}{% endif %} text-white">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+            <strong class="me-auto">{{ message.tags|title }}</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {{ message }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .bg-success { background-color: #28a745 !important; }
+    .bg-error { background-color: #dc3545 !important; }
+    .bg-warning { background-color: #ffc107 !important; }
+    .bg-info { background-color: #17a2b8 !important; }
+    
+    .toast {
+        opacity: 1 !important;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .toast.show {
+        animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-out 2.5s forwards;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-hide toasts after 3 seconds
+        setTimeout(function() {
+            document.querySelectorAll('.toast.show').forEach(function(toast) {
+                toast.classList.remove('show');
+            });
+        }, 3000);
+
+        // Add click handler to close buttons
+        document.querySelectorAll('.toast .btn-close').forEach(function(button) {
+            button.addEventListener('click', function() {
+                this.closest('.toast').classList.remove('show');
+            });
+        });
+    });
+</script>
+{% endif %}

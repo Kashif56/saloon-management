@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Income Statement - Avante Salon</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #343a40;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .navbar a {
+            color: white;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: transparent;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: #6c757d;
+        }
+
+        /* Page Header */
+        h1 {
+            color: #343a40;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Table */
+        .table-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .income-statement-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .income-statement-table th {
+            background-color: #343a40;
+            color: white;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 0.875rem;
+            border: none;
+            padding: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .income-statement-table td {
+            text-align: center;
+            border: none;
+            font-size: 0.9rem;
+            color: #495057;
+            padding: 12px;
+        }
+
+        .income-statement-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .income-statement-table tr:hover {
+            background-color: #e9ecef;
+        }
+
+        /* Button */
+        .btn-add-statement {
+            background-color: #28a745;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            padding: 10px 20px;
+            transition: 0.3s all;
+        }
+
+        .btn-add-statement:hover {
+            background-color: #218838;
+        }
+
+        /* Modal */
+        .modal-header {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .modal-footer button {
+            border-radius: 8px;
+        }
+
+        /* Custom styles */
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .amount {
+            font-weight: bold;
+        }
+
+        .positive {
+            color: #28a745;
+        }
+
+        .negative {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-cut me-2"></i>AVANTE SALON</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:index' %}"><i class="fas fa-home me-1"></i>Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Income Statement</li>
+            </ol>
+        </nav>
+    </div>
+
+    {% include 'includes/messages.html' %}
+    <!-- Main Content -->
+    <div class="container">
+        <h1><i class="fas fa-chart-line me-2"></i>Income Statement</h1>
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table income-statement-table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Total Sales</th>
+                            <th>Total Expenses</th>
+                            <th>Net Total</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for statement in income_statements %}
+                        <tr style="cursor: pointer" onclick="window.location='{% url 'core:income_statement_detail' statement.pk %}'">
+                            <td class="text-start">{{ statement.period|date:"F Y" }}</td>
+                            <td class="amount text-start">Rs. {{ statement.total_sales }}</td>
+                            <td class="amount text-start">Rs. {{ statement.get_total_expenses }}</td>
+                            <td class="amount positive text-start">Rs. {{ statement.net_income }}</td>
+                            
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No income statements found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-end mt-4">
+                <button class="btn btn-add-statement" data-bs-toggle="modal" data-bs-target="#addStatementModal">
+                    <i class="fas fa-plus me-2"></i>Add Statement
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Adding Income Statement -->
+    <div class="modal fade" id="addStatementModal" tabindex="-1" aria-labelledby="addStatementModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStatementModalLabel"><i class="fas fa-file-invoice-dollar me-2"></i>Add Income Statement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'core:add_statement' %}" id="addStatementForm">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="period" class="form-label">Period</label>
+                                <input type="month" class="form-control" id="period" name="period" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="totalSales" class="form-label">Total Sales</label>
+                                <input type="number" class="form-control" id="totalSales" name="total_sales" required>
+                            </div>
+                        </div>
+                        
+                        <h6 class="mt-4 mb-3">Expenses</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="productCost" class="form-label">Cost of Products</label>
+                                <input type="number" class="form-control" id="productCost" name="cost_of_product" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="operatingExpenses" class="form-label">Operating Expenses</label>
+                                <input type="number" class="form-control" id="operatingExpenses" name="operating_expenses" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="salaries" class="form-label">Salaries</label>
+                                <input type="number" class="form-control" id="salaries" name="salaries" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="commissions" class="form-label">Commissions</label>
+                                <input type="number" class="form-control" id="commissions" name="comissions" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="rent" class="form-label">Rent</label>
+                                <input type="number" class="form-control" id="rent" name="rent" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="tax" class="form-label">Tax</label>
+                                <input type="number" class="form-control" id="tax" name="tax" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="others" class="form-label">Other Expenses</label>
+                                <input type="number" class="form-control" id="others" name="others" required>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="totalExpenses" class="form-label">
+                                    Total Expenses
+                                    <i class="fas fa-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Sum of all expenses (Cost of Products + Operating Expenses + Salaries + Commissions + Rent + Tax + Others)"></i>
+                                </label>
+                                <input type="number" class="form-control" id="totalExpenses" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="grossProfit" class="form-label">
+                                    Gross Profit 
+                                    <i class="fas fa-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Gross Profit = Total Sales - Cost of Products"></i>
+                                </label>
+                                <input type="number" class="form-control" id="grossProfit" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="netTotal" class="form-label">
+                                    Net Total
+                                    <i class="fas fa-info-circle ms-1" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                       title="Net Total = Total Sales - All Expenses"></i>
+                                </label>
+                                <input type="number" class="form-control" id="netTotal" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add Statement</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Statement Modal -->
+    <div class="modal fade" id="editStatementModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Income Statement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editStatementForm" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Period</label>
+                            <input type="month" class="form-control" name="period" id="editPeriod" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Total Sales</label>
+                            <input type="number" class="form-control" name="total_sales" id="editTotalSales" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cost of Product</label>
+                            <input type="number" class="form-control" name="cost_of_product" id="editCostOfProduct" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Operating Expenses</label>
+                            <input type="number" class="form-control" name="operating_expenses" id="editOperatingExpenses" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Salaries</label>
+                            <input type="number" class="form-control" name="salaries" id="editSalaries" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Commissions</label>
+                            <input type="number" class="form-control" name="comissions" id="editCommissions" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rent</label>
+                            <input type="number" class="form-control" name="rent" id="editRent" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tax</label>
+                            <input type="number" class="form-control" name="tax" id="editTax" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Others</label>
+                            <input type="number" class="form-control" name="others" id="editOthers" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Statement Modal -->
+    <div class="modal fade" id="deleteStatementModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-trash me-2"></i>Delete Income Statement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="deleteStatementForm" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete the income statement for: <strong id="deleteStatementPeriod"></strong>?</p>
+                        <p class="text-danger"><small>This action cannot be undone.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            const form = document.getElementById('addStatementForm');
+            const inputs = form.querySelectorAll('input[type="number"]:not([readonly])');
+            const grossProfitInput = document.getElementById('grossProfit');
+            const netTotalInput = document.getElementById('netTotal');
+            const totalExpensesInput = document.getElementById('totalExpenses');
+
+            function calculateProfits() {
+                // Get values
+                const totalSales = Number(document.getElementById('totalSales').value) || 0;
+                const productCost = Number(document.getElementById('productCost').value) || 0;
+                const operatingExpenses = Number(document.getElementById('operatingExpenses').value) || 0;
+                const salaries = Number(document.getElementById('salaries').value) || 0;
+                const commissions = Number(document.getElementById('commissions').value) || 0;
+                const rent = Number(document.getElementById('rent').value) || 0;
+                const tax = Number(document.getElementById('tax').value) || 0;
+                const others = Number(document.getElementById('others').value) || 0;
+
+                // Calculate gross profit (total sales - cost of products)
+                const grossProfit = totalSales - productCost;
+                grossProfitInput.value = grossProfit;
+
+                // Calculate total expenses
+                const totalExpenses = productCost + operatingExpenses + salaries + 
+                                    commissions + rent + tax + others;
+                totalExpensesInput.value = totalExpenses;
+
+                // Calculate net total (total sales - total expenses)
+                const netTotal = totalSales - totalExpenses;
+                netTotalInput.value = netTotal;
+
+                // Add color classes based on values
+                grossProfitInput.classList.remove('text-success', 'text-danger');
+                netTotalInput.classList.remove('text-success', 'text-danger');
+                totalExpensesInput.classList.remove('text-success', 'text-danger');
+                
+                grossProfitInput.classList.add(grossProfit >= 0 ? 'text-success' : 'text-danger');
+                netTotalInput.classList.add(netTotal >= 0 ? 'text-success' : 'text-danger');
+            }
+
+            // Add event listeners to all number inputs
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateProfits);
+            });
+        });
+
+        function editStatement(pk, period, totalSales, costOfProduct, operatingExpenses, salaries, commissions, rent, tax, others) {
+            const modal = new bootstrap.Modal(document.getElementById('editStatementModal'));
+            const form = document.getElementById('editStatementForm');
+            
+            // Set form action
+            form.action = `/edit-statement/${pk}/`;
+            
+            // Set form values
+            document.getElementById('editPeriod').value = period;
+            document.getElementById('editTotalSales').value = totalSales;
+            document.getElementById('editCostOfProduct').value = costOfProduct;
+            document.getElementById('editOperatingExpenses').value = operatingExpenses;
+            document.getElementById('editSalaries').value = salaries;
+            document.getElementById('editCommissions').value = commissions;
+            document.getElementById('editRent').value = rent;
+            document.getElementById('editTax').value = tax;
+            document.getElementById('editOthers').value = others;
+            
+            modal.show();
+        }
+
+        function deleteStatement(pk, period) {
+            const modal = new bootstrap.Modal(document.getElementById('deleteStatementModal'));
+            const form = document.getElementById('deleteStatementForm');
+            
+            // Set form action
+            form.action = `/delete-statement/${pk}/`;
+            
+            // Set confirmation message
+            document.getElementById('deleteStatementPeriod').textContent = period;
+            
+            modal.show();
+        }
+    </script>
+</body>
+</html>

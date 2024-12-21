@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Current Month</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #343a40;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .navbar a {
+            color: white;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            background: transparent;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .breadcrumb-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .breadcrumb-item.active {
+            color: #6c757d;
+        }
+
+        /* Page Header */
+        h1 {
+            color: #343a40;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        /* Table */
+        .table-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .attendance-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid #dee2e6;
+        }
+
+        .attendance-table th {
+            background-color: #343a40;
+            color: white;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-size: 0.875rem;
+            border: none;
+            padding: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .attendance-table th:first-child,
+        .attendance-table td:first-child {
+            position: sticky;
+            left: 0;
+            background-color: #f8f9fa;
+            z-index: 20;
+        }
+
+        .attendance-table th:first-child {
+            z-index: 30;
+        }
+
+        .attendance-table td {
+            text-align: center;
+            border: none;
+            font-size: 0.9rem;
+            color: #495057;
+            padding: 12px;
+            border-left: 1px solid #dee2e6;
+        }
+
+        .attendance-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .attendance-table tr:hover {
+            background-color: #e9ecef;
+        }
+
+        /* Button */
+        .btn-mark-attendance {
+            background-color: #28a745;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            padding: 10px 20px;
+            transition: 0.3s all;
+        }
+
+        .btn-mark-attendance:hover {
+            background-color: #218838;
+        }
+
+        /* Modal */
+        .modal-header {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .modal-footer button {
+            border-radius: 8px;
+        }
+
+        /* Custom styles */
+        .present {
+            color: #28a745;
+        }
+
+        .absent {
+            color: #dc3545;
+        }
+
+        .sunday {
+            background-color: #c1c1c1 !important;
+        }
+
+        .sunday th,
+        .sunday td {
+            color: #dc3545 !important;
+            font-weight: 500;
+        }
+
+        .holiday {
+            background-color: #ffebcc !important;
+        }
+
+        .holiday th,
+        .holiday td {
+            color: #ff8c00 !important;
+            font-weight: 500;
+        }
+
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-cut me-2"></i>AVANTE SALON</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:index' %}"><i class="fas fa-home me-1"></i>Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Attendance</li>
+            </ol>
+        </nav>
+
+        <div class="container">
+            <h1>Attendance - {{ month|date:"M Y" }}</h1>
+        </div>
+
+        {% include 'includes/messages.html' %}
+        
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            {% for staff in staff_attendance %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">{{ staff.name }}</h5>
+                            <span class="badge bg-secondary">{{ staff.role }}</span>
+                        </div>
+                        <div class="attendance-progress mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-muted">Attendance Rate</span>
+                                <span class="fw-bold">{{ staff.summary.attendance_percentage }}%</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ staff.summary.attendance_percentage }}%"
+                                     aria-valuenow="{{ staff.summary.attendance_percentage }}" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-2 text-center">
+                            <div class="col-3">
+                                <div class="p-2 border rounded bg-light">
+                                    <div class="small text-success">Present</div>
+                                    <div class="fw-bold">{{ staff.summary.present }}</div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-2 border rounded bg-light">
+                                    <div class="small text-danger">Absent</div>
+                                    <div class="fw-bold">{{ staff.summary.absent }}</div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-2 border rounded bg-light">
+                                    <div class="small text-warning">Leave</div>
+                                    <div class="fw-bold">{{ staff.summary.leave }}</div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-2 border rounded bg-light">
+                                    <div class="small text-info">Holiday</div>
+                                    <div class="fw-bold">{{ staff.summary.holiday }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Main Content -->
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm rounded-3">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-3">
+                                <h5 class="mb-0">Staff Attendance</h5>
+                                <form method="GET" class="d-flex align-items-center gap-2">
+                                    <select name="month" class="form-select form-select-sm" style="width: 200px;" onchange="this.form.submit()">
+                                        {% for m in available_months %}
+                                        <option value="{{ m|date:'Y-m' }}" {% if selected_month == m|date:'Y-m' %}selected{% endif %}>
+                                            {{ m|date:"F Y" }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+                            <button class="btn btn-modern" data-bs-toggle="modal" data-bs-target="#markAttendanceModal">
+                                <i class="fas fa-plus me-2"></i>Mark Attendance
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Staff Name</th>
+                                            <th>Role</th>
+                                            {% for day in days %}
+                                            <th class="text-center" data-date="{{ day|date:'Y-m-d' }}">{{ day|date:"d" }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for staff in staff_attendance %}
+                                        <tr>
+                                            <td>{{ staff.name }}</td>
+                                            <td>{{ staff.role }}</td>
+                                            {% for attendance in staff.attendance %}
+                                            <td class="text-center">
+                                                <div class="d-flex flex-column align-items-center">
+                                                    {% if attendance.status == 'present' %}
+                                                    <i class="fas fa-check-circle text-success"></i>
+                                                    {% elif attendance.status == 'absent' %}
+                                                    <i class="fas fa-times-circle text-danger"></i>
+                                                    {% elif attendance.status == 'leave' %}
+                                                    <i class="fas fa-circle text-warning"></i>
+                                                    {% elif attendance.status == 'holiday' %}
+                                                    <i class="fas fa-star text-info"></i>
+                                                    {% else %}
+                                                    <i class="fas fa-minus text-muted"></i>
+                                                    {% endif %}
+                                                    <button class="btn btn-link btn-sm p-0 mt-1" 
+                                                            onclick="editAttendance('{{ staff.name }}', '{{ attendance.date|date:'Y-m-d' }}', '{{ attendance.status }}')"
+                                                            style="font-size: 0.7rem;">
+                                                        <i class="fas fa-edit text-muted"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="100%" class="text-center py-4">
+                                                <i class="fas fa-calendar-times fa-2x text-muted mb-3 d-block"></i>
+                                                <p class="mb-0">No attendance records found</p>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mark Attendance Modal -->
+        <div class="modal fade" id="markAttendanceModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Mark Attendance</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{% url 'core:mark_attendance' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" name="date" required>
+                            </div>
+                            {% for staff in staff_list %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ staff.name }}</label>
+                                <select class="form-select" name="status_{{ staff.id }}" required>
+                                    <option value="">Select Status</option>
+                                    <option value="present">Present</option>
+                                    <option value="absent">Absent</option>
+                                    <option value="leave">Leave</option>
+                                    <option value="holiday">Holiday</option>
+                                </select>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-modern">Save Attendance</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Holiday Information Card -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2 text-warning"></i>Public Holidays</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="holidayList" class="row g-3">
+                            <!-- Holidays will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Attendance Modal -->
+        <div class="modal fade" id="editAttendanceModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Attendance</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{% url 'core:edit_attendance' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <input type="hidden" name="date" id="editDate">
+                            <input type="hidden" name="staff_name" id="editStaffName">
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Staff Member</label>
+                                <input type="text" class="form-control" id="displayStaffName" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Date</label>
+                                <input type="text" class="form-control" id="displayDate" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" name="status" id="editStatus" required>
+                                    <option value="present">Present</option>
+                                    <option value="absent">Absent</option>
+                                    <option value="leave">Leave</option>
+                                    <option value="holiday">Holiday</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-modern">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const pakistanHolidays = {
+    '2024-02-05': 'Kashmir Day',
+    '2024-03-23': 'Pakistan Day',
+    '2024-04-10': 'Eid ul-Fitr',
+    '2024-04-11': 'Eid ul-Fitr',
+    '2024-04-12': 'Eid ul-Fitr',
+    '2024-05-01': 'Labour Day',
+    '2024-06-17': 'Eid ul-Adha',
+    '2024-06-18': 'Eid ul-Adha',
+    '2024-06-19': 'Eid ul-Adha',
+    '2024-07-17': 'Muharram',
+    '2024-07-18': 'Ashura',
+    '2024-08-14': 'Independence Day',
+    '2024-09-16': 'Eid Milad-un-Nabi',
+    '2024-12-25': 'Quaid Day/Christmas'
+};
+
+function updateHolidayList() {
+    const month = document.querySelector('select[name="month"]').value;
+    const holidayList = document.getElementById('holidayList');
+    holidayList.innerHTML = '';
+
+    const monthHolidays = Object.entries(pakistanHolidays)
+        .filter(([date]) => date.startsWith(month))
+        .sort((a, b) => new Date(a[0]) - new Date(b[0]));
+
+    if (monthHolidays.length === 0) {
+        holidayList.innerHTML = '<div class="col-12"><div class="alert alert-info">No holidays this month</div></div>';
+        return;
+    }
+
+    monthHolidays.forEach(([date, name]) => {
+        const day = new Date(date).getDate();
+        const weekday = new Date(date).toLocaleDateString('en-US', { weekday: 'long' });
+        holidayList.innerHTML += `
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3">
+                                <h4 class="mb-0 text-warning">${day}</h4>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">${name}</h6>
+                                <small class="text-muted">${weekday}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    });
+}
+
+document.querySelector('select[name="month"]').addEventListener('change', updateHolidayList);
+updateHolidayList();
+
+
+
+
+                // Set default date to today in the mark attendance modal
+                const today = new Date().toISOString().split('T')[0];
+                const dateInput = document.querySelector('input[name="date"]');
+                if (dateInput) {
+                    dateInput.value = today;
+                }
+
+                // Pakistan Public Holidays 2024
+                
+
+                // Function to check if a date is a holiday
+                function isHoliday(dateStr) {
+                    return pakistanHolidays.hasOwnProperty(dateStr);
+                }
+
+                // Highlight Sundays and Holidays
+                const dateHeaders = document.querySelectorAll('th[data-date]');
+                dateHeaders.forEach(header => {
+                    const dateStr = header.getAttribute('data-date');
+                    const date = new Date(dateStr);
+                    const columnIndex = Array.from(header.parentElement.children).indexOf(header);
+                    
+                    // Check for Sunday
+                    if (date.getDay() === 0) {
+                        // Add class to header
+                        header.classList.add('sunday');
+                        
+                        // Add class to all cells in this column
+                        const tbody = header.closest('table').querySelector('tbody');
+                        const rows = tbody.querySelectorAll('tr');
+                        
+                        rows.forEach(row => {
+                            const cells = row.querySelectorAll('td');
+                            if (cells.length > columnIndex) {
+                                cells[columnIndex].classList.add('sunday');
+                            }
+                        });
+                    }
+                    
+                    // Check for Holiday
+                    if (isHoliday(dateStr)) {
+                        // Add holiday class and tooltip
+                        header.classList.add('holiday');
+                        header.setAttribute('title', pakistanHolidays[dateStr]);
+                        header.setAttribute('data-bs-toggle', 'tooltip');
+                        header.setAttribute('data-bs-placement', 'top');
+                        
+                        // Add class to all cells in this column
+                        const tbody = header.closest('table').querySelector('tbody');
+                        const rows = tbody.querySelectorAll('tr');
+                        
+                        rows.forEach(row => {
+                            const cells = row.querySelectorAll('td');
+                            if (cells.length > columnIndex) {
+                                cells[columnIndex].classList.add('holiday');
+                                cells[columnIndex].setAttribute('title', pakistanHolidays[dateStr]);
+                                cells[columnIndex].setAttribute('data-bs-toggle', 'tooltip');
+                                cells[columnIndex].setAttribute('data-bs-placement', 'top');
+                            }
+                        });
+                    }
+                });
+
+                // Initialize tooltips
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                });
+            });
+
+            function editAttendance(staffName, date, currentStatus) {
+                const modal = new bootstrap.Modal(document.getElementById('editAttendanceModal'));
+                
+                // Set the values in the form
+                document.getElementById('editStaffName').value = staffName;
+                document.getElementById('editDate').value = date;
+                document.getElementById('displayStaffName').value = staffName;
+                document.getElementById('displayDate').value = new Date(date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                document.getElementById('editStatus').value = currentStatus || 'present';
+                
+                modal.show();
+            }
+        </script>
+    </body>
+</html>
