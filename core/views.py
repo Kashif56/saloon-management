@@ -1,43 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Sum
-
-from .models import Staff, Expense, IncomeStatement, Appointments, Attendence, Workflow, EXPENSE_CATEGORIES
-
-from datetime import date, datetime, timedelta
-from calendar import monthrange
 from django.db.models import Count
 from django.utils import timezone
 from django.http import JsonResponse
+from datetime import date, datetime, timedelta
+from calendar import monthrange
+
+from .models import Staff, Expense, IncomeStatement, Appointments, Attendence, Workflow, EXPENSE_CATEGORIES
+from .decorators import admin_only
 
 # Create your views here.
+@admin_only
 def index(request):
     return render(request, 'index.html')
 
-# def attendance_page(request):
-
-#     # Get the current year and month
-#     today = date.today()
-#     year = today.year
-#     month = today.month
-
-#     # Get the days of the current month
-#     days_in_month = monthrange(year, month)[1]
-#     days_of_month = [str(day).zfill(2) for day in range(1, days_in_month + 1)]  # List of days (e.g., ['01', '02', '03'])
-
-    
-#     staff_list = Staff.objects.all()
-
-#     context = {
-#         "days_of_month": days_of_month,
-#         "staff_list": staff_list,
-#     }
-
-
-#     return render(request, 'attendence_page.html', context)
-
-
-
+@admin_only
 def expenses_page(request):
     expenses_qs = Expense.objects.all().order_by('-date')
     categories = dict(EXPENSE_CATEGORIES)
@@ -48,6 +26,7 @@ def expenses_page(request):
     }
     return render(request, 'expenses.html', context)
 
+@admin_only
 def add_expense(request):
     if request.method == 'POST':
         description = request.POST.get('description')
@@ -67,6 +46,7 @@ def add_expense(request):
     
     return redirect('core:expenses')
 
+@admin_only
 def edit_expense(request, pk):
     if request.method == 'POST':
         expense = get_object_or_404(Expense, pk=pk)
@@ -79,6 +59,7 @@ def edit_expense(request, pk):
         return redirect('core:expenses')
     return redirect('core:expenses')
 
+@admin_only
 def delete_expense(request, pk):
     if request.method == 'POST':
         expense = get_object_or_404(Expense, pk=pk)
@@ -86,6 +67,7 @@ def delete_expense(request, pk):
         messages.success(request, 'Expense deleted successfully!')
     return redirect('core:expenses')
 
+@admin_only
 def income_statement(request):
     if request.method == 'POST':
         # Get form data
@@ -157,6 +139,7 @@ def income_statement(request):
     
     return render(request, 'income_statement.html', context)
 
+@admin_only
 def income_statement_detail(request, pk):
     statement = get_object_or_404(IncomeStatement, pk=pk)
     context = {
@@ -164,6 +147,7 @@ def income_statement_detail(request, pk):
     }
     return render(request, 'income_statement_detail.html', context)
 
+@admin_only
 def add_statement(request):
     if request.method == 'POST':
         # Get all the form data
@@ -198,6 +182,7 @@ def add_statement(request):
     
     return redirect('core:income_statement')
 
+@admin_only
 def edit_statement(request, pk):
     if request.method == 'POST':
         statement = get_object_or_404(IncomeStatement, pk=pk)
@@ -228,6 +213,7 @@ def edit_statement(request, pk):
         return redirect('core:income_statement')
     return redirect('core:income_statement')
 
+@admin_only
 def delete_statement(request, pk):
     if request.method == 'POST':
         statement = get_object_or_404(IncomeStatement, pk=pk)
@@ -235,6 +221,7 @@ def delete_statement(request, pk):
         messages.success(request, 'Income statement deleted successfully!')
     return redirect('core:income_statement')
 
+@admin_only
 def appointments(request):
     appointments_qs = Appointments.objects.all()
     context = {
@@ -242,6 +229,7 @@ def appointments(request):
     }
     return render(request, 'appoinments.html', context)
 
+@admin_only
 def add_appointment(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -263,6 +251,7 @@ def add_appointment(request):
     
     return redirect('core:appointments')
 
+@admin_only
 def edit_appointment(request, pk):
     if request.method == 'POST':
         appointment = get_object_or_404(Appointments, pk=pk)
@@ -276,6 +265,7 @@ def edit_appointment(request, pk):
         return redirect('core:appointments')
     return redirect('core:appointments')
 
+@admin_only
 def delete_appointment(request, pk):
     if request.method == 'POST':
         appointment = get_object_or_404(Appointments, pk=pk)
@@ -283,8 +273,7 @@ def delete_appointment(request, pk):
         messages.success(request, 'Appointment deleted successfully!')
     return redirect('core:appointments')
 
-
-
+@admin_only
 def staff(request):
     staff_list = Staff.objects.all()
     context = {
@@ -292,6 +281,7 @@ def staff(request):
     }
     return render(request, 'staff.html', context)
 
+@admin_only
 def add_staff(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -305,6 +295,7 @@ def add_staff(request):
     
     return redirect('core:staff')
 
+@admin_only
 def edit_staff(request, pk):
     if request.method == 'POST':
         staff = get_object_or_404(Staff, pk=pk)
@@ -315,6 +306,7 @@ def edit_staff(request, pk):
         return redirect('core:staff')
     return redirect('core:staff')
 
+@admin_only
 def delete_staff(request, pk):
     if request.method == 'POST':
         staff = get_object_or_404(Staff, pk=pk)
@@ -322,6 +314,7 @@ def delete_staff(request, pk):
         messages.success(request, 'Staff member deleted successfully!')
     return redirect('core:staff')
 
+@admin_only
 def attendance(request):
     # Get selected month or default to current month
     today = timezone.now()
@@ -400,6 +393,7 @@ def attendance(request):
     }
     return render(request, 'attendence_page.html', context)
 
+@admin_only
 def mark_attendance(request):
     if request.method == 'POST':
         date = request.POST.get('date')
@@ -420,6 +414,7 @@ def mark_attendance(request):
 
     return redirect('core:attendance')
 
+@admin_only
 def edit_attendance(request):
     if request.method == 'POST':
         date = request.POST.get('date')
@@ -442,7 +437,7 @@ def edit_attendance(request):
 
     return redirect('core:attendance')
 
-
+@admin_only
 def workflow(request):
     # Get selected date from query parameters or use current date
     current_date = timezone.now()
@@ -524,6 +519,7 @@ def workflow(request):
     
     return render(request, 'workflow.html', context)
 
+@admin_only
 def add_workflow(request):
     if request.method == 'POST':
         artist_id = request.POST.get('artist')
@@ -554,7 +550,7 @@ def add_workflow(request):
         # Redirect back to the workflow page for the same date
         return redirect(f'/workflow/?date={period}')
 
-
+@admin_only
 def staff_monthly_report(request, staff_id, year=None, month=None):
     staff = get_object_or_404(Staff, id=staff_id)
     today = timezone.now()
@@ -616,6 +612,7 @@ def staff_monthly_report(request, staff_id, year=None, month=None):
     
     return render(request, 'staff_monthly_report.html', context)
 
+@admin_only
 def monthly_report(request, year=None, month=None):
     # Get year and month from query parameters or use current date
     today = timezone.now()
@@ -703,6 +700,7 @@ def monthly_report(request, year=None, month=None):
     
     return render(request, 'monthly_report.html', context)
 
+@admin_only
 def get_workflow(request, workflow_id):
     """Get workflow data for editing"""
     workflow = get_object_or_404(Workflow, id=workflow_id)
@@ -715,8 +713,15 @@ def get_workflow(request, workflow_id):
     }
     return JsonResponse(data)
 
+@admin_only
 def edit_workflow(request, workflow_id):
     """Edit workflow via AJAX"""
+    if not request.user.is_staff:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Only administrators can edit workflows.'
+        })
+        
     workflow = get_object_or_404(Workflow, id=workflow_id)
     
     if request.method == 'POST':
@@ -758,8 +763,15 @@ def edit_workflow(request, workflow_id):
     
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
+@admin_only
 def delete_workflow(request, workflow_id):
     """Delete workflow via AJAX"""
+    if not request.user.is_staff:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Only administrators can delete workflows.'
+        })
+        
     workflow = get_object_or_404(Workflow, id=workflow_id)
     
     try:
@@ -775,6 +787,7 @@ def delete_workflow(request, workflow_id):
             'message': 'Error deleting workflow. Please try again.'
         })
 
+@admin_only
 def get_monthly_expenses(request):
     period = request.GET.get('period')
     

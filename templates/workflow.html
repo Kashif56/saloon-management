@@ -334,9 +334,11 @@
                     <a href="{% url 'core:monthly_report' %}" class="btn btn-light">
                         <i class="fas fa-chart-line me-2"></i>Monthly Report
                     </a>
+                    {% if user.is_staff %}
                     <button type="button" class="add-workflow-btn" data-bs-toggle="modal" data-bs-target="#addWorkflowModal">
                         <i class="fas fa-plus me-2"></i>Add Workflow
                     </button>
+                    {% endif %}
                 </div>
             </div>
             <div class="d-flex justify-content-between align-items-center">
@@ -434,14 +436,14 @@
                                             <td class="text-end workflow-amount">Rs. {{ workflow.amount }}</td>
                                             <td class="workflow-artist d-none">{{ workflow.artist.name }}</td>
                                             <td class="text-end">
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-light" onclick="editWorkflow({{ workflow.id }})">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-light text-danger" onclick="confirmDelete({{ workflow.id }})">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
+                                                {% if user.is_staff %}
+                                                <button class="btn btn-sm btn-primary me-1" onclick="editWorkflow({{ workflow.id }})">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-danger" onclick="confirmDelete({{ workflow.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                         {% endfor %}
@@ -585,20 +587,15 @@
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
 
         function editWorkflow(workflowId) {
-            currentWorkflowId = workflowId;
-            
-            // Fetch workflow data
             fetch(`/workflow/get/${workflowId}/`)
                 .then(response => response.json())
                 .then(data => {
-                    // Fill form fields
-                    const form = document.getElementById('editWorkflowForm');
-                    form.querySelector('select[name="artist"]').value = data.artist_id;
-                    form.querySelector('input[name="service"]').value = data.service;
-                    form.querySelector('input[name="amount"]').value = data.amount;
-                    form.querySelector('input[name="period"]').value = data.period;
+                    currentWorkflowId = data.id;
+                    document.getElementById('editWorkflowForm').querySelector('select[name="artist"]').value = data.artist_id;
+                    document.getElementById('editWorkflowForm').querySelector('input[name="service"]').value = data.service;
+                    document.getElementById('editWorkflowForm').querySelector('input[name="amount"]').value = data.amount;
+                    document.getElementById('editWorkflowForm').querySelector('input[name="period"]').value = data.period;
                     
-                    // Show modal
                     editModal.show();
                 });
         }
@@ -616,24 +613,26 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Update the UI
-                    const workflowRow = document.querySelector(`[data-workflow-id="${currentWorkflowId}"]`);
+                    const workflowRow = document.querySelector(`tr[data-workflow-id="${currentWorkflowId}"]`);
                     if (workflowRow) {
-                        workflowRow.querySelector('.workflow-service').textContent = data.data.service;
-                        workflowRow.querySelector('.workflow-amount').textContent = `Rs. ${data.data.amount}`;
+                        workflowRow.querySelector('.workflow-service').textContent = formData.get('service');
+                        workflowRow.querySelector('.workflow-amount').textContent = `Rs. ${formData.get('amount')}`;
                         workflowRow.querySelector('.workflow-artist').textContent = data.data.artist_name;
                     }
-                    
                     
                     editModal.hide();
                     
                     // Reload page to update all instances
                     location.reload();
-                } 
+                } else {
+                    alert(data.message);
+                    if (data.message.includes('administrators')) {
+                        editModal.hide();
+                    }
+                }
             });
         });
 
-        // Delete workflow functionality
         function confirmDelete(workflowId) {
             currentWorkflowId = workflowId;
             deleteModal.show();
@@ -644,8 +643,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // Remove the workflow from UI
-                        const workflowRow = document.querySelector(`[data-workflow-id="${currentWorkflowId}"]`);
+                        const workflowRow = document.querySelector(`tr[data-workflow-id="${currentWorkflowId}"]`);
                         if (workflowRow) {
                             workflowRow.remove();
                         }
@@ -654,7 +652,12 @@
                         
                         // Reload page to update all instances
                         location.reload();
-                    } 
+                    } else {
+                        alert(data.message);
+                        if (data.message.includes('administrators')) {
+                            deleteModal.hide();
+                        }
+                    }
                 });
         });
     </script>
