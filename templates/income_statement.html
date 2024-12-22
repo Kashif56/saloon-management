@@ -216,6 +216,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="/attendance">
+                    <i class="fa-solid fa-calendar-check"></i>Attendance
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="{% url 'core:appointments' %}">
                     <i class="fa-solid fa-calendar"></i>Appointments
                 </a>
@@ -283,7 +288,7 @@
                                             <td class="text-end">Rs. {{ statement.total_sales }}</td>
                                             <td class="text-end">Rs. {{ statement.gross_profit }}</td>
                                             <td class="text-end">Rs. {{ statement.get_total_expenses }}</td>
-                                            <td class="text-end">Rs. {{ statement.get_net_income }}</td>
+                                            <td class="text-end">Rs. {{ statement.net_income }}</td>
                                             <td class="text-end">
                                                 <a href="{% url 'core:income_statement_detail' statement.id %}" class="btn btn-sm btn-light">
                                                     <i class="fas fa-eye"></i>

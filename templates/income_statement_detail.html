@@ -155,6 +155,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="/attendance">
+                    <i class="fa-solid fa-calendar-check"></i>Attendance
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="/appointments">
                     <i class="fa-solid fa-calendar"></i>Appointments
                 </a>
@@ -183,9 +188,15 @@
             <h2 class="mb-0">Income Statement</h2>
             <div>
                 <span class="badge bg-primary">{{ statement.period|date:"F Y" }}</span>
-                <a href="{% url 'core:income_statement' %}" class="btn btn-outline-primary btn-sm ms-2">
-                    <i class="fas fa-arrow-left"></i> Back to List
-                </a>
+                <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#editStatementModal">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+                <form action="{% url 'core:delete_statement' statement.pk %}" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger ms-2" onclick="return confirm('Are you sure you want to delete this income statement?')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -295,7 +306,187 @@
         </div>
     </div>
 
+    <!-- Edit Income Statement Modal -->
+    <div class="modal fade" id="editStatementModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Income Statement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'core:edit_statement' statement.pk %}" id="editStatementForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Period</label>
+                            <input type="month" class="form-control" name="period" value="{{ statement.period|date:'Y-m' }}" required>
+                        </div>
+
+                        <div class="row">
+                            <!-- Left Column -->
+                            <div class="col-md-6">
+                                <h6 class="mb-3 text-muted">Revenue</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Total Sales</label>
+                                    <input type="number" class="form-control calc-input" name="total_sales" value="{{ statement.total_sales }}" required>
+                                </div>
+
+                                <h6 class="mb-3 text-muted">Cost of Sales</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Salon Material</label>
+                                    <input type="number" class="form-control calc-input" name="saloon_material" value="{{ statement.saloon_material }}" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Supplies</label>
+                                    <input type="number" class="form-control calc-input" name="supplies" value="{{ statement.supplies }}" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Other Purchases</label>
+                                    <input type="number" class="form-control calc-input" name="other_purchases" value="{{ statement.other_purchases }}" required>
+                                </div>
+                            </div>
+
+                            <!-- Right Column -->
+                            <div class="col-md-6">
+                                <h6 class="mb-3 text-muted">Operating Expenses</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Marketing</label>
+                                    <input type="number" class="form-control calc-input" name="marketing" value="{{ statement.marketing }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Commissions</label>
+                                    <input type="number" class="form-control calc-input" name="comissions" value="{{ statement.comissions }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Salaries</label>
+                                    <input type="number" class="form-control calc-input" name="salaries" value="{{ statement.salaries }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Rent</label>
+                                    <input type="number" class="form-control calc-input" name="rent" value="{{ statement.rent }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Electricity</label>
+                                    <input type="number" class="form-control calc-input" name="electricity" value="{{ statement.electricity }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Other Utilities</label>
+                                    <input type="number" class="form-control calc-input" name="other_utilities" value="{{ statement.other_utilities }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Telephone & Internet</label>
+                                    <input type="number" class="form-control calc-input" name="tele_internet" value="{{ statement.tele_internet }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Legal & Professional</label>
+                                    <input type="number" class="form-control calc-input" name="legal" value="{{ statement.legal }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Cleaning</label>
+                                    <input type="number" class="form-control calc-input" name="cleaning" value="{{ statement.cleaning }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Others</label>
+                                    <input type="number" class="form-control calc-input" name="others" value="{{ statement.others }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Totals Section -->
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="alert alert-info">
+                                    <strong>Gross Profit:</strong>
+                                    <span id="grossProfit">{{ statement.gross_profit }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-warning">
+                                    <strong>Total Expenses:</strong>
+                                    <span id="totalExpenses">{{ statement.get_total_expenses }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-success">
+                                    <strong>Net Income:</strong>
+                                    <span id="netIncome">{{ statement.net_income }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden fields for calculated values -->
+                        <input type="hidden" name="gross_profit" id="grossProfitInput" value="{{ statement.gross_profit }}">
+                        <input type="hidden" name="net_income" id="netIncomeInput" value="{{ statement.net_income }}">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" form="editStatementForm" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Function to calculate totals
+        function calculateTotals() {
+            // Get all input values
+            const totalSales = parseFloat(document.querySelector('[name="total_sales"]').value) || 0;
+            const salonMaterial = parseFloat(document.querySelector('[name="saloon_material"]').value) || 0;
+            const supplies = parseFloat(document.querySelector('[name="supplies"]').value) || 0;
+            const otherPurchases = parseFloat(document.querySelector('[name="other_purchases"]').value) || 0;
+            
+            // Calculate Cost of Sales total
+            const costOfSales = salonMaterial + supplies + otherPurchases;
+            
+            // Calculate Gross Profit
+            const grossProfit = totalSales - costOfSales;
+            
+            // Calculate Operating Expenses total
+            const operatingExpenses = 
+                (parseFloat(document.querySelector('[name="marketing"]').value) || 0) +
+                (parseFloat(document.querySelector('[name="comissions"]').value) || 0) +
+                (parseFloat(document.querySelector('[name="salaries"]').value) || 0) +
+                (parseFloat(document.querySelector('[name="rent"]').value) || 0) +
+                (parseFloat(document.querySelector('[name="electricity"]').value) || 0) +
+                (parseFloat(document.querySelector('[name="other_utilities"]').value) || 0) +
+                (parseFloat(document.querySelector('[name="tele_internet"]').value) || 0) +
+                (parseFloat(document.querySelector('[name="legal"]').value) || 0) +
+                (parseFloat(document.querySelector('[name="cleaning"]').value) || 0) +
+                (parseFloat(document.querySelector('[name="others"]').value) || 0);
+            
+            // Calculate Net Income
+            const netIncome = grossProfit - operatingExpenses;
+            
+            // Update display values
+            document.getElementById('grossProfit').textContent = grossProfit;
+            document.getElementById('totalExpenses').textContent = operatingExpenses;
+            document.getElementById('netIncome').textContent = netIncome;
+            
+            // Update hidden inputs
+            document.getElementById('grossProfitInput').value = grossProfit;
+            document.getElementById('netIncomeInput').value = netIncome;
+        }
+
+        // Add event listeners to all calculation inputs
+        document.querySelectorAll('.calc-input').forEach(input => {
+            input.addEventListener('input', calculateTotals);
+        });
+    </script>
 </body>
 
 </html>

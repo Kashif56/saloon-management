@@ -218,26 +218,34 @@
                                 <th>Date</th>
                                 <th>Service</th>
                                 <th class="text-end">Amount</th>
+                                <th class="text-end">Daily Total</th>
                                 <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for workflow in workflows %}
-                            <tr data-workflow-id="{{ workflow.id }}">
-                                <td>{{ workflow.period|date:"d M Y" }}</td>
-                                <td class="workflow-service">{{ workflow.service }}</td>
-                                <td class="text-end workflow-amount">Rs. {{ workflow.amount }}</td>
-                                <td class="text-end">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-light" onclick="editWorkflow({{ workflow.id }})">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-light text-danger" onclick="confirmDelete({{ workflow.id }})">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
+                            {% for date, daily_data in daily_workflows %}
+                                {% for workflow in daily_data.workflows %}
+                                    <tr data-workflow-id="{{ workflow.id }}">
+                                        {% if forloop.first %}
+                                            <td rowspan="{{ daily_data.workflows|length }}">{{ date|date:"d M Y" }}</td>
+                                        {% endif %}
+                                        <td class="workflow-service">{{ workflow.service }}</td>
+                                        <td class="text-end workflow-amount">Rs. {{ workflow.amount }}</td>
+                                        {% if forloop.first %}
+                                            <td rowspan="{{ daily_data.workflows|length }}" class="text-end">Rs. {{ daily_data.total }}</td>
+                                        {% endif %}
+                                        <td class="text-end">
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-light" onclick="editWorkflow({{ workflow.id }})">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-light text-danger" onclick="confirmDelete({{ workflow.id }})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -259,8 +267,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Staff Member</label>
-                            <select name="artist" class="form-select" required disabled>
+
+                            <select name="artist" class="form-select" required>
+                                {% for staff in staff_list %}
                                 <option value="{{ staff.id }}">{{ staff.name }}</option>
+                                {% endfor %}
                             </select>
                         </div>
 
@@ -357,14 +368,11 @@
                         workflowRow.querySelector('.workflow-amount').textContent = `Rs. ${data.data.amount}`;
                     }
                     
-                    // Show success message and close modal
-                    alert(data.message);
+                    
                     editModal.hide();
                     
                     // Reload page to update all instances
                     location.reload();
-                } else {
-                    alert(data.message);
                 }
             });
         });
@@ -386,14 +394,11 @@
                             workflowRow.remove();
                         }
                         
-                        // Show success message and close modal
-                        alert(data.message);
+                       
                         deleteModal.hide();
                         
                         // Reload page to update all instances
                         location.reload();
-                    } else {
-                        alert(data.message);
                     }
                 });
         });

@@ -203,13 +203,26 @@ def edit_statement(request, pk):
         statement = get_object_or_404(IncomeStatement, pk=pk)
         statement.period = f"{request.POST.get('period')}-01"
         statement.total_sales = int(request.POST.get('total_sales'))
-        statement.cost_of_product = int(request.POST.get('cost_of_product'))
-        statement.operating_expenses = int(request.POST.get('operating_expenses'))
-        statement.salaries = int(request.POST.get('salaries'))
+        
+        # Cost of Sales
+        statement.saloon_material = int(request.POST.get('saloon_material'))
+        statement.supplies = int(request.POST.get('supplies'))
+        statement.other_purchases = int(request.POST.get('other_purchases'))
+        statement.gross_profit = int(request.POST.get('gross_profit'))
+        
+        # Operating Expenses
+        statement.marketing = int(request.POST.get('marketing'))
         statement.comissions = int(request.POST.get('comissions'))
+        statement.salaries = int(request.POST.get('salaries'))
         statement.rent = int(request.POST.get('rent'))
-        statement.tax = int(request.POST.get('tax'))
+        statement.electricity = int(request.POST.get('electricity'))
+        statement.other_utilities = int(request.POST.get('other_utilities'))
+        statement.tele_internet = int(request.POST.get('tele_internet'))
+        statement.legal = int(request.POST.get('legal'))
+        statement.cleaning = int(request.POST.get('cleaning'))
         statement.others = int(request.POST.get('others'))
+        statement.net_income = int(request.POST.get('net_income'))
+        
         statement.save()
         messages.success(request, 'Income statement updated successfully!')
         return redirect('core:income_statement')
@@ -589,6 +602,7 @@ def staff_monthly_report(request, staff_id, year=None, month=None):
         daily_workflows[day]['total'] += workflow.amount
     
     context = {
+        'staff_list': Staff.objects.filter(is_active=True),
         'staff': staff,
         'year': year,
         'month': month,
@@ -678,6 +692,7 @@ def monthly_report(request, year=None, month=None):
     
     context = {
         'staff_data': staff_data,
+        'staff_list': staff_members,
         'year': year,
         'month': month,
         'month_name': start_date.strftime('%B'),
